@@ -1,0 +1,34 @@
+# 1. Cette section définit comment construire le projet en package installable avec pip install -e .
+[build-system]
+# hatchling est moderne, simple et marche sans configuration si vous suivez une structure standard.
+# Le plus classique est setuptools
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# 2. L'identité du projet
+[project]
+name = "aicandidate"
+# Format de versionning MAJEUR.MINEUR.CORRECTIF
+version = "0.1.0"
+# pip refusera d'installer si la version est inférieure
+requires-python = ">=3.12"
+# remplace le requirements : ne lister que les dépendances nécessaires
+dependencies = [
+]
+
+# Ces dépendances ne seront pas forcément installées
+[project.optional-dependencies]
+# Celles de dev s'installeront quand on exécutera le package en mode éditable
+dev = ["pytest", "ruff"]
+# pytest est le framework de test le plus utilisé
+# ruff est un linteur et un formateur qui permet de détecter de potentielles erreurs dans le code
+# et aussi de formater dans un style de code homogène
+
+# 3. La configuration des outils
+[tool.pytest.ini_options]
+# Dit à pytest de chercher les tests dans le dossier tests
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+# Changer la longueur maximale d'une ligne de code à 100

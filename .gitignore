@@ -1,0 +1,18 @@
+# Fichiers compilés de Python
+__pycache__/
+*.pyc
+
+# Caches des outils de test et de qualité
+.pytest_cache/
+.ruff_cache/
+
+# Artefacts de construction du package
+build/
+dist/
+*.egg-info/
+
+# Secrets : ne JAMAIS commiter ce fichier
+.env
+
+# Réglages de l'éditeur
+.vscode/

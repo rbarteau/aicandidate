@@ -14,7 +14,7 @@ version = "0.1.0"
 requires-python = ">=3.13"
 # remplace le requirements : ne lister que les dépendances nécessaires
 dependencies = [
-    httpx
+    "httpx"
 ]
 
 # Ces dépendances ne seront pas forcément installées

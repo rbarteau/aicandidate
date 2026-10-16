@@ -11,14 +11,14 @@ name = "aicandidate"
 # Format de versionning MAJEUR.MINEUR.CORRECTIF
 version = "0.1.0"
 # pip refusera d'installer si la version est inférieure
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 # remplace le requirements : ne lister que les dépendances nécessaires
 dependencies = [
 ]
 
 # Ces dépendances ne seront pas forcément installées
 [project.optional-dependencies]
-# Celles de dev s'installeront quand on exécutera le package en mode éditable
+# installées uniquement si on le demande avec [dev] dans pip install ".[dev]" par exemple
 dev = ["pytest", "ruff"]
 # pytest est le framework de test le plus utilisé
 # ruff est un linteur et un formateur qui permet de détecter de potentielles erreurs dans le code

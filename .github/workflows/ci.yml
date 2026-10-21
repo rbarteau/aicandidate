@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+
+jobs:
+    # Un seul job à exécuter, nommé "tests"
+  tests:
+    # Exécuter les tests sur une machine Linux avec la dernière version d'Ubuntu
+    # Chaque job reçoit une machine virtuelle propre pour s'exécuter, donc il n'y a pas de dépendances entre les jobs.
+    runs-on: ubuntu-latest
+
+    # Les étapes à exécuter dans le job
+    steps:
+        # Récupérer le code source du dépôt
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+        # Installer python
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13" # on avait fait le choix d'utiliser Python 3.13 pour ce projet comme l'indique le fichier toml
+
+      - name: Installer le projet
+        run: pip install ".[dev]"
+
+      - name: Lint
+        run: ruff check
+
+      - name: Formatage
+        run: ruff format --check
+
+      - name: Tests
+        run: pytest

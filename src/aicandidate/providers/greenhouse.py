@@ -10,7 +10,6 @@ def fetch_jobs(board_tokens, client):
 
     # On parcourt les tokens des entreprises
     for board_token in board_tokens:
-
         # Créer l'url
         url = f"{BASE_URL}/{board_token}/jobs"
         # On fait la requête HTTP GET

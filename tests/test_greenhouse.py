@@ -1,6 +1,7 @@
 import json
 from collections import Counter
 from pathlib import Path
+
 import httpx
 import pytest
 
@@ -8,14 +9,17 @@ from aicandidate.providers.greenhouse import fetch_jobs
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
+
 # Fonction de chargement des fixtures
 def charger_fixture(nom):
     return json.loads((FIXTURES / nom).read_text(encoding="utf-8"))
+
 
 # création des fixtures pour les tests
 @pytest.fixture
 def donnees_stripe():
     return charger_fixture("greenhouse_stripe.json")
+
 
 @pytest.fixture
 def donnees_doctolib():
@@ -42,25 +46,30 @@ def test_renvoie_les_offres_d_une_entreprise(donnees_stripe):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien les offres attendues.
     # Arrange : on prépare un faux serveur qui renvoie la fixture
 
-    client = faux_client({
-        "stripe": httpx.Response(200, json=donnees_stripe),
-    })
+    client = faux_client(
+        {
+            "stripe": httpx.Response(200, json=donnees_stripe),
+        }
+    )
 
     # Act : on appelle la fonction testée pour les différentes configurations
-    offres= fetch_jobs(["stripe"], client=client)
+    offres = fetch_jobs(["stripe"], client=client)
 
     # Assert : on vérifie le résultat
     # 1 renvoie les offres d'une entreprise
     assert len(offres) == len(donnees_stripe["jobs"])
 
+
 def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doctolib):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # les offres attendues pour plusieurs entreprises
 
-    client = faux_client({
-        "stripe": httpx.Response(200, json=donnees_stripe),
-        "doctolib": httpx.Response(200, json=donnees_doctolib),
-    })
+    client = faux_client(
+        {
+            "stripe": httpx.Response(200, json=donnees_stripe),
+            "doctolib": httpx.Response(200, json=donnees_doctolib),
+        }
+    )
 
     # Act : on appelle la fonction testée
     offres = fetch_jobs(["stripe", "doctolib"], client=client)
@@ -68,14 +77,17 @@ def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doc
     # Assert : on vérifie le résultat
     assert len(offres) == len(donnees_stripe["jobs"]) + len(donnees_doctolib["jobs"])
 
+
 def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, donnees_doctolib):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # des offres qui précisent le nom de l'entreprise
 
-    client = faux_client({
-        "stripe": httpx.Response(200, json=donnees_stripe),
-        "doctolib": httpx.Response(200, json=donnees_doctolib),
-    })
+    client = faux_client(
+        {
+            "stripe": httpx.Response(200, json=donnees_stripe),
+            "doctolib": httpx.Response(200, json=donnees_doctolib),
+        }
+    )
 
     # Act : on appelle la fonction testée
     offres = fetch_jobs(["stripe", "doctolib"], client=client)
@@ -97,14 +109,16 @@ def test_une_entreprise_inexistante_est_ignoree(donnees_stripe, donnees_doctolib
     # et renvoie un avertissement dans la log.
 
     # Arrange : on prépare un faux serveur qui renvoie la fixture pour stripe et doctolib, et une erreur 404 pour une entreprise inexistante
-    client = faux_client({
-        "stripe": httpx.Response(200, json=donnees_stripe),
-        "entreprise_inexistante": httpx.Response(404),
-        "doctolib": httpx.Response(200, json=donnees_doctolib),
-    })
+    client = faux_client(
+        {
+            "stripe": httpx.Response(200, json=donnees_stripe),
+            "entreprise_inexistante": httpx.Response(404),
+            "doctolib": httpx.Response(200, json=donnees_doctolib),
+        }
+    )
 
     # Act : on appelle la fonction testée
-    offres = fetch_jobs(["stripe","entreprise_inexistante","doctolib"], client=client)
+    offres = fetch_jobs(["stripe", "entreprise_inexistante", "doctolib"], client=client)
 
     # Assert : on vérifie le résultat
     assert len(offres) == len(donnees_stripe["jobs"]) + len(donnees_doctolib["jobs"])
@@ -129,5 +143,5 @@ def test_signale_les_erreurs_serveur(code):
     # Act + Assert: on appelle la fonction testée : on vérifie directement que python lève la bonne exception
     with pytest.raises(httpx.HTTPStatusError) as exc_info:
         fetch_jobs(["stripe"], client=client)
-        
+
     assert exc_info.value.response.status_code == code

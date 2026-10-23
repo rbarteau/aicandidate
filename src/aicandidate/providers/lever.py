@@ -1,6 +1,7 @@
 BASE_URL = "https://api.lever.co/v0/postings"
 
 import logging
+import site
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ def fetch_jobs(board_tokens, client):
         response.raise_for_status()
 
         data = response.json()
+        
         # On ajoute le token de l'entreprise à chaque offre pour savoir de quelle entreprise elle vient
         for offre in data:
             offre["board_token"] = board_token

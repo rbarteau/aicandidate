@@ -122,3 +122,41 @@ def test_signale_les_erreurs_serveur(code):
         fetch_jobs(["blablacar"], client=client)
 
     assert exc_info.value.response.status_code == code
+
+def test_demande_les_offres_au_format_json():
+    requetes_recues = []
+
+    def faux_serveur(request):
+        requetes_recues.append(request)
+        return httpx.Response(200, json=[])
+
+    client = httpx.Client(transport=httpx.MockTransport(faux_serveur))
+
+    fetch_jobs(["blablacar"], client=client)
+
+    assert len(requetes_recues) == 1
+    assert requetes_recues[0].url.params["mode"] == "json"
+
+def test_une_entreprise_sans_offre_est_un_cas_normal(donnees_blablacar, donnees_qonto, caplog, faux_client):
+    # Une entreprise présente sur Lever mais sans offre publiée renvoie un 200
+    # avec une liste vide (cas observé avec Mistral). C'est un cas normal :
+    # la collecte continue, sans avertissement.
+
+    # Arrange : l'entreprise sans offre est placée au milieu de la liste
+    client = faux_client(
+        {
+            "blablacar": httpx.Response(200, json=donnees_blablacar),
+            "mistral": httpx.Response(200, json=[]),
+            "qonto": httpx.Response(200, json=donnees_qonto),
+        }
+    )
+
+    # Act
+    offres = fetch_jobs(["blablacar", "mistral", "qonto"], client=client)
+
+    # Assert : les offres des autres entreprises sont bien récupérées
+    assert len(offres) == len(donnees_blablacar) + len(donnees_qonto)
+
+    # Assert : aucun avertissement, puisque ce n'est pas une erreur
+    avertissements = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert avertissements == []

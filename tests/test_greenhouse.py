@@ -10,39 +10,18 @@ from aicandidate.providers.greenhouse import fetch_jobs
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-# Fonction de chargement des fixtures
-def charger_fixture(nom):
-    return json.loads((FIXTURES / nom).read_text(encoding="utf-8"))
-
-
 # création des fixtures pour les tests
 @pytest.fixture
-def donnees_stripe():
+def donnees_stripe(charger_fixture):
     return charger_fixture("greenhouse_stripe.json")
 
 
 @pytest.fixture
-def donnees_doctolib():
+def donnees_doctolib(charger_fixture):
     return charger_fixture("greenhouse_doctolib.json")
 
 
-def faux_client(reponse_par_entreprise):
-    """Construit un client httpx dont le faux serveur renvoie, pour chaque
-    identifiant d'entreprise, la réponse prévue dans le dictionnaire `reponses`."""
-
-    def faux_serveur(request):
-        # "/v1/boards/stripe/jobs" -> ["", "v1", "boards", "stripe", "jobs"]
-        board_token = request.url.path.split("/")[3]
-
-        if board_token not in reponse_par_entreprise:
-            raise AssertionError(f"Requête inattendue : {request.url}")
-
-        return reponse_par_entreprise[board_token]
-
-    return httpx.Client(transport=httpx.MockTransport(faux_serveur))
-
-
-def test_renvoie_les_offres_d_une_entreprise(donnees_stripe):
+def test_renvoie_les_offres_d_une_entreprise(donnees_stripe, faux_client):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien les offres attendues.
     # Arrange : on prépare un faux serveur qui renvoie la fixture
 
@@ -60,7 +39,7 @@ def test_renvoie_les_offres_d_une_entreprise(donnees_stripe):
     assert len(offres) == len(donnees_stripe["jobs"])
 
 
-def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doctolib):
+def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doctolib, faux_client):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # les offres attendues pour plusieurs entreprises
 
@@ -78,7 +57,7 @@ def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doc
     assert len(offres) == len(donnees_stripe["jobs"]) + len(donnees_doctolib["jobs"])
 
 
-def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, donnees_doctolib):
+def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, donnees_doctolib, faux_client):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # des offres qui précisent le nom de l'entreprise
 
@@ -103,7 +82,7 @@ def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, do
     }
 
 
-def test_une_entreprise_inexistante_est_ignoree(donnees_stripe, donnees_doctolib, caplog):
+def test_une_entreprise_inexistante_est_ignoree(donnees_stripe, donnees_doctolib, caplog, faux_client):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # ne prend pas en compte une entreprise qui renvoie une erreur 404, mais continue de traiter les autres entreprises
     # et renvoie un avertissement dans la log.

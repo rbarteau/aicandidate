@@ -1,24 +1,26 @@
 import json
 from pathlib import Path
 
-import pytest
 import httpx
+import pytest
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
+
 # Fonction de chargement des fixtures
 @pytest.fixture
-def charger_fixture():          # aucun paramètre pour pytest
-    def _charger(nom):          # la fonction que le test va appeler
+def charger_fixture():  # aucun paramètre pour pytest
+    def _charger(nom):  # la fonction que le test va appeler
         return json.loads((FIXTURES / nom).read_text(encoding="utf-8"))
 
-    return _charger             # on renvoie la fonction, sans l'appeler
+    return _charger  # on renvoie la fonction, sans l'appeler
 
 
 @pytest.fixture
 def faux_client():
     """Construit un client httpx dont le faux serveur renvoie, pour chaque
     identifiant d'entreprise, la réponse prévue dans le dictionnaire `reponses`."""
+
     # la fixture ne peut pas prendre de paramètre, donc on renvoie une fonction qui prend le paramètre
     def _construire(reponse_par_entreprise):
         def faux_serveur(request):

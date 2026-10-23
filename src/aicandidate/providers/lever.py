@@ -1,9 +1,9 @@
-
 BASE_URL = "https://api.lever.co/v0/postings"
 
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 def fetch_jobs(board_tokens, client):
     offres = []

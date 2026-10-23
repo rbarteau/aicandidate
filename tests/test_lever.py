@@ -1,5 +1,4 @@
 from collections import Counter
-from pathlib import Path
 
 import httpx
 import pytest
@@ -12,9 +11,11 @@ from aicandidate.providers.lever import fetch_jobs
 def donnees_blablacar(charger_fixture):
     return charger_fixture("lever_blablacar.json")
 
+
 @pytest.fixture
 def donnees_qonto(charger_fixture):
     return charger_fixture("lever_qonto.json")
+
 
 def test_renvoie_les_offres_d_une_entreprise(donnees_blablacar, faux_client):
 
@@ -50,10 +51,12 @@ def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_blablacar, donnees_
     assert len(offres) == len(donnees_blablacar) + len(donnees_qonto)
 
 
-def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_blablacar, donnees_qonto, faux_client):
+def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(
+    donnees_blablacar, donnees_qonto, faux_client
+):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # des offres qui précisent le nom de l'entreprise
-    
+
     client = faux_client(
         {
             "blablacar": httpx.Response(200, json=donnees_blablacar),
@@ -75,7 +78,9 @@ def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_blablacar,
     }
 
 
-def test_une_entreprise_inexistante_est_ignoree(donnees_blablacar, donnees_qonto, caplog, faux_client):
+def test_une_entreprise_inexistante_est_ignoree(
+    donnees_blablacar, donnees_qonto, caplog, faux_client
+):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # ne prend pas en compte une entreprise qui renvoie une erreur 404, mais continue de traiter les autres entreprises
     # et renvoie un avertissement dans la log.
@@ -100,7 +105,7 @@ def test_une_entreprise_inexistante_est_ignoree(donnees_blablacar, donnees_qonto
     assert len(avertissements) == 1
     assert "entreprise_inexistante" in avertissements[0].getMessage()
 
-    
+
 @pytest.mark.parametrize("code", [429, 500, 503])
 def test_signale_les_erreurs_serveur(code):
     # Ce test créé 3 faux serveurs qui renvoient respectivement une erreur 429, 500 et 503

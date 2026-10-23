@@ -1,4 +1,3 @@
-import json
 from collections import Counter
 from pathlib import Path
 
@@ -57,7 +56,9 @@ def test_renvoie_les_offres_de_plusieurs_entreprises(donnees_stripe, donnees_doc
     assert len(offres) == len(donnees_stripe["jobs"]) + len(donnees_doctolib["jobs"])
 
 
-def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, donnees_doctolib, faux_client):
+def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(
+    donnees_stripe, donnees_doctolib, faux_client
+):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # des offres qui précisent le nom de l'entreprise
 
@@ -82,7 +83,9 @@ def test_chaque_offre_indique_de_quelle_entreprise_elle_vient(donnees_stripe, do
     }
 
 
-def test_une_entreprise_inexistante_est_ignoree(donnees_stripe, donnees_doctolib, caplog, faux_client):
+def test_une_entreprise_inexistante_est_ignoree(
+    donnees_stripe, donnees_doctolib, caplog, faux_client
+):
     # Ce test créé un faux serveur qui renvoie une réponse connue (la fixture) et vérifie que la fonction fetch_jobs() renvoie bien
     # ne prend pas en compte une entreprise qui renvoie une erreur 404, mais continue de traiter les autres entreprises
     # et renvoie un avertissement dans la log.

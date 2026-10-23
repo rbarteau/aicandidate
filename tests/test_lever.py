@@ -123,6 +123,7 @@ def test_signale_les_erreurs_serveur(code):
 
     assert exc_info.value.response.status_code == code
 
+
 def test_demande_les_offres_au_format_json():
     requetes_recues = []
 
@@ -137,7 +138,10 @@ def test_demande_les_offres_au_format_json():
     assert len(requetes_recues) == 1
     assert requetes_recues[0].url.params["mode"] == "json"
 
-def test_une_entreprise_sans_offre_est_un_cas_normal(donnees_blablacar, donnees_qonto, caplog, faux_client):
+
+def test_une_entreprise_sans_offre_est_un_cas_normal(
+    donnees_blablacar, donnees_qonto, caplog, faux_client
+):
     # Une entreprise présente sur Lever mais sans offre publiée renvoie un 200
     # avec une liste vide (cas observé avec Mistral). C'est un cas normal :
     # la collecte continue, sans avertissement.

@@ -1,7 +1,6 @@
 BASE_URL = "https://api.lever.co/v0/postings"
 
 import logging
-import site
 
 logger = logging.getLogger(__name__)
 
